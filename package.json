@@ -21,6 +21,7 @@
   "dependencies": {
     "dotenv": "^18.0.4",
     "experss": "^0.0.1-security",
-    "jsonwebtoken": "^9.0.3"
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.10.2"
   }
 }
