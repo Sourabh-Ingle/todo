@@ -19,6 +19,8 @@
   },
   "homepage": "https://github.com/Sourabh-Ingle/todo#readme",
   "dependencies": {
-    "experss": "^0.0.1-security"
+    "dotenv": "^18.0.4",
+    "experss": "^0.0.1-security",
+    "jsonwebtoken": "^9.0.3"
   }
 }
