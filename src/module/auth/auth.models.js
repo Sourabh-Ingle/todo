@@ -1,4 +1,4 @@
-import { required } from "joi";
+
 import { Schema } from "mongoose";
 
 const userSchema = new Schema(
