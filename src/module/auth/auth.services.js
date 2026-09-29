@@ -51,6 +51,7 @@ const login = async ({ email,password}) => {
     if (!user) {
         throw ApiError.conflict("Invalid Credentials!!!")
     }
+    // need password checking code
    
     if (!user.isValid) {
         throw ApiError.forbiden("Please verify your email before login");
@@ -67,12 +68,48 @@ const login = async ({ email,password}) => {
     delete userObj.password;
 
     return ({ user: userObj, accessToken, refreshtoken });
-    
+}
+
+const refresh = async (token) => {
+    if (!token) {
+        throw ApiError.conflict("Token required");
+    }
+    const hashRefreshToken = hashToken(token);
+
+    const user = await User.findOne({ refreshToken: hashRefreshToken }).select("+refreshToken");
+
+    if (!user) {
+        throw ApiError.conflict("Invalid");
+    };
+
+    user.accessToken = generateAccessToken({ id: user._id, email: user.email, role: user.role});
+    const refreshToken =  generateRefreshToken({ id: user._id, email: user.email });
+    user.refreshtoken = hashToken(refreshToken);
+    user.save({ validateBeforeSave: true });
+    const userObj = user.toObject();
+    delete userObj.password;
+    delete userObj.refreshToken;
+
+    return ({ userObj, refreshToken, accessToken });
+
+}
+
+const logout = async(userId) => {
+    await User.findByIdAndUpdate(userId, {
+        refreshToken: null
+    })
+}
+
+const getMe = async () => {
+    const user = await User.findById(userId);
+    if (!user) {
+        throw ApiError.notFound("User not found");
+    }
+    return user;
 }
 
 
-
 export {
-    registerUser,login
+    registerUser, login, logout, getMe,refresh
     
 }
