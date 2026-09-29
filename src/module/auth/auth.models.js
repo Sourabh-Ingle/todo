@@ -1,5 +1,6 @@
 
 import { Schema } from "mongoose";
+import bcrypt from "bcryptjs";
 
 const userSchema = new Schema(
     {
@@ -20,10 +21,10 @@ const userSchema = new Schema(
         password: {
             type: String,
             trime: true,
-            required:[true, "Password is required!!!"],
+            required: [true, "Password is required!!!"],
             maxlength: 50,
             minlength: 8,
-            select:false
+            select: false
         },
         role: {
             type: String,
@@ -33,15 +34,15 @@ const userSchema = new Schema(
         },
         isVerify: {
             type: Boolean,
-            default:false
+            default: false
         },
         refreshToken: {
             type: String,
-            select:false
+            select: false
         },
         verificationToken: {
             type: String,
-            select:false
+            select: false
         },
         resetPasswordToken: {
             type: String,
@@ -55,6 +56,16 @@ const userSchema = new Schema(
     {
         timestamps: true
     }
-)
+);
+
+userSchema.pre("save", async function () {
+    if (!this.isModified("password")) return;
+    this.password = await bcrypt.hash(this.password, 12)
+});
+
+userSchema.methods.comparePassword = async function (candidatePassword) {
+    return bcrypt.compare(candidatePassword, this.password);
+}
+
 
 export default mongoose.model('User', userSchema);

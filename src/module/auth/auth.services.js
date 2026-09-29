@@ -52,6 +52,11 @@ const login = async ({ email,password}) => {
         throw ApiError.conflict("Invalid Credentials!!!")
     }
     // need password checking code
+    const isMatch = await user.comparePassword(password);
+
+    if (!isMatch) {
+        throw ApiError.unautherised("Invalid credentials.");
+    }
    
     if (!user.isValid) {
         throw ApiError.forbiden("Please verify your email before login");
