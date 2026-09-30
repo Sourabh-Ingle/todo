@@ -66,7 +66,7 @@ const login = async ({ email,password}) => {
     const refreshtoken = generateRefreshToken({ id: user._id, email: user.email })
 
     user.refreshtoken = hashToken(refreshtoken);
-    user.save({ validateBeforeSave: true });
+    await user.save({ validateBeforeSave: true });
 
     const userObj = user.toObject();
     delete userObj.refreshToken;
@@ -90,7 +90,7 @@ const refresh = async (token) => {
     user.accessToken = generateAccessToken({ id: user._id, email: user.email, role: user.role});
     const refreshToken =  generateRefreshToken({ id: user._id, email: user.email });
     user.refreshtoken = hashToken(refreshToken);
-    user.save({ validateBeforeSave: true });
+    await user.save({ validateBeforeSave: true });
     const userObj = user.toObject();
     delete userObj.password;
     delete userObj.refreshToken;
@@ -113,8 +113,57 @@ const getMe = async () => {
     return user;
 }
 
+const verifyEmail = async (token) => {
+    const hashedToken = hashToken(token);
+
+    const user = await User.findOne({ verificationToken: hashedToken }).select("+verificationToken");
+    if (!user) {
+        throw ApiError.unautherised();
+    }
+    user.isValid = true;
+    user.verificationToken =undefined
+    await user.save({ validateBeforeSave: false })
+    return user;
+}
+const forgotPassword = async (email) => {
+    const user = await User.findOne({ email }).select("+password");
+    if (!user) {
+        throw ApiError.unautherised();
+    }
+    const { rawToken, hashToken } = generateResetToken();
+    user.resetPasswordToken = hashToken;
+    user.resetPasswordExpiry = Date.now() + (15 * 24 * 60 * 60 * 1000);
+    await user.save();
+    try {
+        await sendResetPasswordEmail(email, rawToken);
+    } catch (err) {
+        console.error("Failed to send reset email:", err.message);
+    }
+
+}
+
+const resetPassword = async (token, newPassword) => {
+    const hashedToken = hashToken(token);
+
+    const user = await User.findOne({
+        resetPasswordToken: hashedToken,
+        resetPasswordExpires: { $gt: Date.now() }
+    }).select("+resetPassword +resetPasswordExpires +password");
+    if (!user) {
+        throw ApiError.unautherised();
+    }
+    
+    user.password = password;
+    user.resetPassword = undefined;
+    user.resetPasswordExpires = undefined;
+    await user.save();
+
+    return
+
+}
+
 
 export {
-    registerUser, login, logout, getMe,refresh
+    registerUser, login, logout, getMe, refresh, verifyEmail
     
 }
