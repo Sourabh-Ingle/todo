@@ -153,7 +153,7 @@ const resetPassword = async (token, newPassword) => {
         throw ApiError.unautherised();
     }
     
-    user.password = password;
+    user.password = newPassword;
     user.resetPassword = undefined;
     user.resetPasswordExpires = undefined;
     await user.save();
@@ -164,6 +164,8 @@ const resetPassword = async (token, newPassword) => {
 
 
 export {
-    registerUser, login, logout, getMe, refresh, verifyEmail
+    registerUser, login, logout, getMe,
+    refresh, verifyEmail, forgotPassword,
+    resetPassword
     
 }
