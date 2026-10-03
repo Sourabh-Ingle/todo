@@ -1,5 +1,4 @@
 import ApiError from '../../common/utils/app-error.js';
-import ApiResponse from '../../common/utils/app-response.js'
 import { generateAccessToken, generateRefreshToken, generateResetToken } from '../../common/utils/jwt.utils.js';
 import User from './auth.models.js'
 
