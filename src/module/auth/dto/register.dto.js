@@ -1,6 +1,6 @@
 import Joi from 'joi'
 
-class AuthDTO extends BaseDTO{
+class RegisterDTO extends BaseDTO{
     static schema = Joi.object({
         name: Joi.string().trim().min(2).max(100).required(),
         email: Joi.string().trim().email().max(255).lowercase().required(),
@@ -9,4 +9,4 @@ class AuthDTO extends BaseDTO{
     })
 }
 
-export default AuthDTO;
+export default RegisterDTO;
